@@ -79,3 +79,7 @@ class AuthNotifier extends AsyncNotifier<AuthState> {
     state = AsyncValue.data(AuthState());
   }
 }
+
+final authProvider = AsyncNotifierProvider<AuthNotifier, AuthState>(
+  () => AuthNotifier(),
+);
