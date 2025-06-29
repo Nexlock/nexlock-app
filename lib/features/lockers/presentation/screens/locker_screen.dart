@@ -3,7 +3,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:nexlock_app/core/constants/colors.dart';
 import 'package:nexlock_app/features/lockers/domain/models/lock_unlock_rental.dart';
-import 'package:nexlock_app/features/lockers/domain/models/rental_model.dart';
 import 'package:nexlock_app/features/lockers/domain/providers/locker_provider.dart';
 import 'package:nexlock_app/features/lockers/presentation/widgets/checkout_dialog.dart';
 import 'package:nexlock_app/features/lockers/presentation/widgets/extend_dialog.dart';
