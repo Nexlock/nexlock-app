@@ -6,6 +6,7 @@ import 'package:nexlock_app/features/modules/domain/models/get_module_by_id_lock
 import 'package:nexlock_app/features/modules/domain/models/get_module_by_id_response.dart';
 import 'package:nexlock_app/features/modules/domain/providers/modules_provider.dart';
 import 'package:nexlock_app/features/modules/presentation/widgets/locker_card.dart';
+import 'package:nexlock_app/features/lockers/presentation/screens/locker_screen.dart';
 import 'package:nexlock_app/ui/glassmorphic_app_bar.dart';
 import 'package:nexlock_app/ui/glassmorphic_container.dart';
 
@@ -191,183 +192,13 @@ class _ModuleScreenState extends ConsumerState<ModuleScreen> {
   }
 
   void _handleLockerTap(GetModuleByIdLocker locker) {
-    final isAvailable = locker.isAvailable && locker.currentRental == null;
-    final isOwnRental = locker.currentRental?.isOwnRental ?? false;
-
-    if (isOwnRental) {
-      _showLockerActions(locker);
-    } else if (isAvailable) {
-      _showRentDialog(locker);
-    } else {
-      _showLockerInfo(locker);
-    }
-  }
-
-  void _showLockerActions(GetModuleByIdLocker locker) {
-    showModalBottomSheet(
-      context: context,
-      backgroundColor: Colors.transparent,
-      builder:
-          (context) => Container(
-            padding: const EdgeInsets.all(20),
-            child: GlassmorphicContainer(
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Text(
-                    'Locker ${locker.lockerId}',
-                    style: const TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white,
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-                  ListTile(
-                    leading: Icon(
-                      locker.currentRental!.isLocked
-                          ? Icons.lock_open
-                          : Icons.lock,
-                      color: Colors.white.withOpacity(0.8),
-                    ),
-                    title: Text(
-                      locker.currentRental!.isLocked ? 'Unlock' : 'Lock',
-                      style: const TextStyle(color: Colors.white),
-                    ),
-                    onTap: () {
-                      Navigator.pop(context);
-                      // TODO: Implement lock/unlock functionality
-                    },
-                  ),
-                  ListTile(
-                    leading: Icon(
-                      Icons.cancel,
-                      color: Colors.red.withOpacity(0.8),
-                    ),
-                    title: const Text(
-                      'End Rental',
-                      style: TextStyle(color: Colors.white),
-                    ),
-                    onTap: () {
-                      Navigator.pop(context);
-                      // TODO: Implement end rental functionality
-                    },
-                  ),
-                ],
-              ),
-            ),
-          ),
-    );
-  }
-
-  void _showRentDialog(GetModuleByIdLocker locker) {
-    showDialog(
-      context: context,
-      builder:
-          (context) => AlertDialog(
-            backgroundColor: Colors.transparent,
-            content: GlassmorphicContainer(
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  const Icon(Icons.lock_outline, size: 48, color: Colors.white),
-                  const SizedBox(height: 16),
-                  Text(
-                    'Rent Locker ${locker.lockerId}',
-                    style: const TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white,
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-                  const Text(
-                    'Would you like to rent this locker?',
-                    style: TextStyle(fontSize: 14, color: Colors.white70),
-                    textAlign: TextAlign.center,
-                  ),
-                  const SizedBox(height: 24),
-                  Row(
-                    children: [
-                      Expanded(
-                        child: TextButton(
-                          onPressed: () => Navigator.pop(context),
-                          style: TextButton.styleFrom(
-                            backgroundColor: Colors.white.withOpacity(0.1),
-                          ),
-                          child: const Text(
-                            'Cancel',
-                            style: TextStyle(color: Colors.white),
-                          ),
-                        ),
-                      ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: ElevatedButton(
-                          onPressed: () {
-                            Navigator.pop(context);
-                            // TODO: Implement rent functionality
-                          },
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: AppColors.accent.withOpacity(0.8),
-                          ),
-                          child: const Text(
-                            'Rent',
-                            style: TextStyle(color: Colors.black),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            ),
-          ),
-    );
-  }
-
-  void _showLockerInfo(GetModuleByIdLocker locker) {
-    showDialog(
-      context: context,
-      builder:
-          (context) => AlertDialog(
-            backgroundColor: Colors.transparent,
-            content: GlassmorphicContainer(
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  const Icon(Icons.info_outline, size: 48, color: Colors.white),
-                  const SizedBox(height: 16),
-                  Text(
-                    'Locker ${locker.lockerId}',
-                    style: const TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white,
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-                  const Text(
-                    'This locker is currently occupied.',
-                    style: TextStyle(fontSize: 14, color: Colors.white70),
-                    textAlign: TextAlign.center,
-                  ),
-                  const SizedBox(height: 24),
-                  ElevatedButton(
-                    onPressed: () => Navigator.pop(context),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.white.withOpacity(0.2),
-                    ),
-                    child: const Text(
-                      'OK',
-                      style: TextStyle(color: Colors.white),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-    );
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => LockerScreen(locker: locker)),
+    ).then((_) {
+      // Refresh module details when returning from locker screen
+      _loadModuleDetails();
+    });
   }
 }
 
