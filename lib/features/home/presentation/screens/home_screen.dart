@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:nexlock_app/core/constants/colors.dart';
-import 'package:nexlock_app/features/home/presentation/widgets/module_card.dart';
 import 'package:nexlock_app/features/home/presentation/widgets/navigation_bar.dart';
 import 'package:nexlock_app/features/modules/domain/providers/modules_provider.dart';
+import 'package:nexlock_app/features/modules/presentation/widgets/module_card.dart';
 
 class HomeScreen extends ConsumerWidget {
   const HomeScreen({super.key});
@@ -103,12 +103,7 @@ class HomeScreen extends ConsumerWidget {
                   itemCount: state.modules.length,
                   itemBuilder: (context, index) {
                     final module = state.modules[index];
-                    return ModuleCard(
-                      module: module,
-                      onTap: () {
-                        // TODO: Navigate to module details
-                      },
-                    );
+                    return ModuleCard(module: module);
                   },
                 ),
               );

@@ -4,6 +4,7 @@ import 'package:nexlock_app/features/auth/domain/providers/auth_notifier.dart';
 import 'package:nexlock_app/features/auth/presentation/screens/auth_screen.dart';
 import 'package:nexlock_app/features/auth/presentation/screens/profile_screen.dart';
 import 'package:nexlock_app/features/home/presentation/screens/home_screen.dart';
+import 'package:nexlock_app/features/modules/presentation/screens/module_screen.dart';
 import 'package:nexlock_app/features/splash/presentation/screens/splash_screen.dart';
 
 // GoRouter configuration
@@ -39,6 +40,13 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(path: '/home', builder: (context, state) => const HomeScreen()),
       GoRoute(path: '/auth', builder: (context, state) => const AuthScreen()),
       GoRoute(path: '/profile', builder: (context, state) => ProfileScreen()),
+      GoRoute(
+        path: '/module/:moduleId',
+        builder: (context, state) {
+          final moduleId = state.pathParameters['moduleId']!;
+          return ModuleScreen(moduleId: moduleId);
+        },
+      ),
     ],
   );
 });
