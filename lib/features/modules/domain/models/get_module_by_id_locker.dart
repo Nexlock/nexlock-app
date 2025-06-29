@@ -13,8 +13,8 @@ sealed class GetModuleByIdLocker with _$GetModuleByIdLocker {
     required String lockerId,
     required bool isAvailable,
     LockerRental? currentRental,
-    required DateTime createdAt,
-    required DateTime updatedAt,
+    DateTime? createdAt,
+    DateTime? updatedAt,
   }) = _GetModuleByIdLocker;
 
   factory GetModuleByIdLocker.fromJson(Map<String, dynamic> json) =>

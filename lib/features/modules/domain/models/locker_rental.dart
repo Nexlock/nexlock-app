@@ -10,7 +10,7 @@ sealed class LockerRental with _$LockerRental {
     required DateTime startDate,
     required DateTime expiresAt,
     required bool isLocked,
-    required String userId,
+    String? userId, // Made nullable
     required bool isOwnRental,
     DateTime? endDate,
   }) = _LockerRental;

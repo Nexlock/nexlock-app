@@ -15,8 +15,13 @@ class AuthRepository {
       );
 
       if (response.statusCode == 200) {
-        final token = response.data['token'];
-        await _secureStorage.setToken(token);
+        final responseData = response.data;
+        if (responseData is Map<String, dynamic>) {
+          final token = responseData['token'];
+          if (token != null && token is String) {
+            await _secureStorage.setToken(token);
+          }
+        }
       }
 
       return response.data;
@@ -24,6 +29,10 @@ class AuthRepository {
       if (e is DioException) {
         final errorMessage = parseDioError(e);
         throw Exception(errorMessage);
+      } else if (e is StateError) {
+        throw Exception(
+          'Network client initialization failed. Please try again.',
+        );
       } else {
         throw Exception('An unexpected error occurred: $e');
       }
@@ -42,8 +51,13 @@ class AuthRepository {
       );
 
       if (response.statusCode == 201) {
-        final token = response.data['token'];
-        await _secureStorage.setToken(token);
+        final responseData = response.data;
+        if (responseData is Map<String, dynamic>) {
+          final token = responseData['token'];
+          if (token != null && token is String) {
+            await _secureStorage.setToken(token);
+          }
+        }
       }
 
       return response.data;

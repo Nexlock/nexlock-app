@@ -73,7 +73,9 @@ class _ModuleScreenState extends ConsumerState<ModuleScreen> {
       ),
       body: Container(
         decoration: const BoxDecoration(gradient: AppColors.backgroundGradient),
-        child: SafeArea(child: _buildBody()),
+        child: SafeArea(
+          child: Column(children: [Expanded(child: _buildBody())]),
+        ),
       ),
     );
   }
@@ -142,6 +144,7 @@ class _ModuleScreenState extends ConsumerState<ModuleScreen> {
       onRefresh: _loadModuleDetails,
       child: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
+        physics: const AlwaysScrollableScrollPhysics(),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [

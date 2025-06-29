@@ -23,28 +23,10 @@ class LockerScreen extends ConsumerStatefulWidget {
 
 class _LockerScreenState extends ConsumerState<LockerScreen> {
   bool isLoading = false;
-  RentalModel? currentRental;
 
   @override
   void initState() {
     super.initState();
-    _initializeRental();
-  }
-
-  void _initializeRental() {
-    if (widget.locker.currentRental != null) {
-      // Convert locker rental to rental model if needed
-      // This is a simplified conversion - you might need to adjust based on your actual models
-      currentRental = RentalModel(
-        id: widget.locker.currentRental!.id,
-        lockerId: widget.locker.id,
-        userId: widget.locker.currentRental!.userId,
-        locker: null as dynamic, // You'll need to handle this properly
-        startDate: widget.locker.currentRental!.startDate,
-        expiresAt: widget.locker.currentRental!.expiresAt,
-        isLocked: widget.locker.currentRental!.isLocked,
-      );
-    }
   }
 
   @override
@@ -65,18 +47,24 @@ class _LockerScreenState extends ConsumerState<LockerScreen> {
       body: Container(
         decoration: const BoxDecoration(gradient: AppColors.backgroundGradient),
         child: SafeArea(
-          child: SingleChildScrollView(
-            padding: const EdgeInsets.all(16),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                _LockerInfoCard(locker: widget.locker),
-                const SizedBox(height: 20),
-                if (isAvailable) _RentSection(),
-                if (isOwnRental) _RentalActionsSection(),
-                if (!isAvailable && !isOwnRental) _OccupiedSection(),
-              ],
-            ),
+          child: Column(
+            children: [
+              Expanded(
+                child: SingleChildScrollView(
+                  padding: const EdgeInsets.all(16),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      _LockerInfoCard(locker: widget.locker),
+                      const SizedBox(height: 20),
+                      if (isAvailable) _RentSection(),
+                      if (isOwnRental) _RentalActionsSection(),
+                      if (!isAvailable && !isOwnRental) _OccupiedSection(),
+                    ],
+                  ),
+                ),
+              ),
+            ],
           ),
         ),
       ),
@@ -441,7 +429,7 @@ class _LockerScreenState extends ConsumerState<LockerScreen> {
             backgroundColor: Colors.green,
           ),
         );
-        context.pop();
+        // Removed context.pop() to stay on the locker screen
       }
     } catch (e) {
       if (mounted) {

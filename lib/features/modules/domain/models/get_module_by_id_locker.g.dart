@@ -17,8 +17,14 @@ _GetModuleByIdLocker _$GetModuleByIdLockerFromJson(Map<String, dynamic> json) =>
               : LockerRental.fromJson(
                 json['currentRental'] as Map<String, dynamic>,
               ),
-      createdAt: DateTime.parse(json['createdAt'] as String),
-      updatedAt: DateTime.parse(json['updatedAt'] as String),
+      createdAt:
+          json['createdAt'] == null
+              ? null
+              : DateTime.parse(json['createdAt'] as String),
+      updatedAt:
+          json['updatedAt'] == null
+              ? null
+              : DateTime.parse(json['updatedAt'] as String),
     );
 
 Map<String, dynamic> _$GetModuleByIdLockerToJson(
@@ -28,6 +34,6 @@ Map<String, dynamic> _$GetModuleByIdLockerToJson(
   'lockerId': instance.lockerId,
   'isAvailable': instance.isAvailable,
   'currentRental': instance.currentRental,
-  'createdAt': instance.createdAt.toIso8601String(),
-  'updatedAt': instance.updatedAt.toIso8601String(),
+  'createdAt': instance.createdAt?.toIso8601String(),
+  'updatedAt': instance.updatedAt?.toIso8601String(),
 };

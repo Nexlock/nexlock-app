@@ -47,10 +47,16 @@ class _RentalListScreenState extends ConsumerState<RentalListScreen> {
       body: Container(
         decoration: const BoxDecoration(gradient: AppColors.backgroundGradient),
         child: SafeArea(
-          child: rentalState.when(
-            data: (state) => _buildBody(state.rentals, state.isLoading),
-            loading: () => _buildLoadingState(),
-            error: (error, _) => _buildErrorState(error.toString()),
+          child: Column(
+            children: [
+              Expanded(
+                child: rentalState.when(
+                  data: (state) => _buildBody(state.rentals, state.isLoading),
+                  loading: () => _buildLoadingState(),
+                  error: (error, _) => _buildErrorState(error.toString()),
+                ),
+              ),
+            ],
           ),
         ),
       ),
@@ -68,6 +74,7 @@ class _RentalListScreenState extends ConsumerState<RentalListScreen> {
       },
       child: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
+        physics: const AlwaysScrollableScrollPhysics(),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [

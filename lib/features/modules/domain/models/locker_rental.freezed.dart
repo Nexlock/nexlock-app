@@ -16,7 +16,8 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$LockerRental {
 
- String get id; DateTime get startDate; DateTime get expiresAt; bool get isLocked; String get userId; bool get isOwnRental; DateTime? get endDate;
+ String get id; DateTime get startDate; DateTime get expiresAt; bool get isLocked; String? get userId;// Made nullable
+ bool get isOwnRental; DateTime? get endDate;
 /// Create a copy of LockerRental
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -49,7 +50,7 @@ abstract mixin class $LockerRentalCopyWith<$Res>  {
   factory $LockerRentalCopyWith(LockerRental value, $Res Function(LockerRental) _then) = _$LockerRentalCopyWithImpl;
 @useResult
 $Res call({
- String id, DateTime startDate, DateTime expiresAt, bool isLocked, String userId, bool isOwnRental, DateTime? endDate
+ String id, DateTime startDate, DateTime expiresAt, bool isLocked, String? userId, bool isOwnRental, DateTime? endDate
 });
 
 
@@ -66,14 +67,14 @@ class _$LockerRentalCopyWithImpl<$Res>
 
 /// Create a copy of LockerRental
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? startDate = null,Object? expiresAt = null,Object? isLocked = null,Object? userId = null,Object? isOwnRental = null,Object? endDate = freezed,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? startDate = null,Object? expiresAt = null,Object? isLocked = null,Object? userId = freezed,Object? isOwnRental = null,Object? endDate = freezed,}) {
   return _then(_self.copyWith(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as String,startDate: null == startDate ? _self.startDate : startDate // ignore: cast_nullable_to_non_nullable
 as DateTime,expiresAt: null == expiresAt ? _self.expiresAt : expiresAt // ignore: cast_nullable_to_non_nullable
 as DateTime,isLocked: null == isLocked ? _self.isLocked : isLocked // ignore: cast_nullable_to_non_nullable
-as bool,userId: null == userId ? _self.userId : userId // ignore: cast_nullable_to_non_nullable
-as String,isOwnRental: null == isOwnRental ? _self.isOwnRental : isOwnRental // ignore: cast_nullable_to_non_nullable
+as bool,userId: freezed == userId ? _self.userId : userId // ignore: cast_nullable_to_non_nullable
+as String?,isOwnRental: null == isOwnRental ? _self.isOwnRental : isOwnRental // ignore: cast_nullable_to_non_nullable
 as bool,endDate: freezed == endDate ? _self.endDate : endDate // ignore: cast_nullable_to_non_nullable
 as DateTime?,
   ));
@@ -86,14 +87,15 @@ as DateTime?,
 @JsonSerializable()
 
 class _LockerRental implements LockerRental {
-  const _LockerRental({required this.id, required this.startDate, required this.expiresAt, required this.isLocked, required this.userId, required this.isOwnRental, this.endDate});
+  const _LockerRental({required this.id, required this.startDate, required this.expiresAt, required this.isLocked, this.userId, required this.isOwnRental, this.endDate});
   factory _LockerRental.fromJson(Map<String, dynamic> json) => _$LockerRentalFromJson(json);
 
 @override final  String id;
 @override final  DateTime startDate;
 @override final  DateTime expiresAt;
 @override final  bool isLocked;
-@override final  String userId;
+@override final  String? userId;
+// Made nullable
 @override final  bool isOwnRental;
 @override final  DateTime? endDate;
 
@@ -130,7 +132,7 @@ abstract mixin class _$LockerRentalCopyWith<$Res> implements $LockerRentalCopyWi
   factory _$LockerRentalCopyWith(_LockerRental value, $Res Function(_LockerRental) _then) = __$LockerRentalCopyWithImpl;
 @override @useResult
 $Res call({
- String id, DateTime startDate, DateTime expiresAt, bool isLocked, String userId, bool isOwnRental, DateTime? endDate
+ String id, DateTime startDate, DateTime expiresAt, bool isLocked, String? userId, bool isOwnRental, DateTime? endDate
 });
 
 
@@ -147,14 +149,14 @@ class __$LockerRentalCopyWithImpl<$Res>
 
 /// Create a copy of LockerRental
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? startDate = null,Object? expiresAt = null,Object? isLocked = null,Object? userId = null,Object? isOwnRental = null,Object? endDate = freezed,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? startDate = null,Object? expiresAt = null,Object? isLocked = null,Object? userId = freezed,Object? isOwnRental = null,Object? endDate = freezed,}) {
   return _then(_LockerRental(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as String,startDate: null == startDate ? _self.startDate : startDate // ignore: cast_nullable_to_non_nullable
 as DateTime,expiresAt: null == expiresAt ? _self.expiresAt : expiresAt // ignore: cast_nullable_to_non_nullable
 as DateTime,isLocked: null == isLocked ? _self.isLocked : isLocked // ignore: cast_nullable_to_non_nullable
-as bool,userId: null == userId ? _self.userId : userId // ignore: cast_nullable_to_non_nullable
-as String,isOwnRental: null == isOwnRental ? _self.isOwnRental : isOwnRental // ignore: cast_nullable_to_non_nullable
+as bool,userId: freezed == userId ? _self.userId : userId // ignore: cast_nullable_to_non_nullable
+as String?,isOwnRental: null == isOwnRental ? _self.isOwnRental : isOwnRental // ignore: cast_nullable_to_non_nullable
 as bool,endDate: freezed == endDate ? _self.endDate : endDate // ignore: cast_nullable_to_non_nullable
 as DateTime?,
   ));

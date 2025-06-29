@@ -16,7 +16,7 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$GetModuleByIdLocker {
 
- String get id; String get lockerId; bool get isAvailable; LockerRental? get currentRental; DateTime get createdAt; DateTime get updatedAt;
+ String get id; String get lockerId; bool get isAvailable; LockerRental? get currentRental; DateTime? get createdAt; DateTime? get updatedAt;
 /// Create a copy of GetModuleByIdLocker
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -49,7 +49,7 @@ abstract mixin class $GetModuleByIdLockerCopyWith<$Res>  {
   factory $GetModuleByIdLockerCopyWith(GetModuleByIdLocker value, $Res Function(GetModuleByIdLocker) _then) = _$GetModuleByIdLockerCopyWithImpl;
 @useResult
 $Res call({
- String id, String lockerId, bool isAvailable, LockerRental? currentRental, DateTime createdAt, DateTime updatedAt
+ String id, String lockerId, bool isAvailable, LockerRental? currentRental, DateTime? createdAt, DateTime? updatedAt
 });
 
 
@@ -66,15 +66,15 @@ class _$GetModuleByIdLockerCopyWithImpl<$Res>
 
 /// Create a copy of GetModuleByIdLocker
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? lockerId = null,Object? isAvailable = null,Object? currentRental = freezed,Object? createdAt = null,Object? updatedAt = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? lockerId = null,Object? isAvailable = null,Object? currentRental = freezed,Object? createdAt = freezed,Object? updatedAt = freezed,}) {
   return _then(_self.copyWith(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as String,lockerId: null == lockerId ? _self.lockerId : lockerId // ignore: cast_nullable_to_non_nullable
 as String,isAvailable: null == isAvailable ? _self.isAvailable : isAvailable // ignore: cast_nullable_to_non_nullable
 as bool,currentRental: freezed == currentRental ? _self.currentRental : currentRental // ignore: cast_nullable_to_non_nullable
-as LockerRental?,createdAt: null == createdAt ? _self.createdAt : createdAt // ignore: cast_nullable_to_non_nullable
-as DateTime,updatedAt: null == updatedAt ? _self.updatedAt : updatedAt // ignore: cast_nullable_to_non_nullable
-as DateTime,
+as LockerRental?,createdAt: freezed == createdAt ? _self.createdAt : createdAt // ignore: cast_nullable_to_non_nullable
+as DateTime?,updatedAt: freezed == updatedAt ? _self.updatedAt : updatedAt // ignore: cast_nullable_to_non_nullable
+as DateTime?,
   ));
 }
 /// Create a copy of GetModuleByIdLocker
@@ -97,15 +97,15 @@ $LockerRentalCopyWith<$Res>? get currentRental {
 @JsonSerializable()
 
 class _GetModuleByIdLocker implements GetModuleByIdLocker {
-  const _GetModuleByIdLocker({required this.id, required this.lockerId, required this.isAvailable, this.currentRental, required this.createdAt, required this.updatedAt});
+  const _GetModuleByIdLocker({required this.id, required this.lockerId, required this.isAvailable, this.currentRental, this.createdAt, this.updatedAt});
   factory _GetModuleByIdLocker.fromJson(Map<String, dynamic> json) => _$GetModuleByIdLockerFromJson(json);
 
 @override final  String id;
 @override final  String lockerId;
 @override final  bool isAvailable;
 @override final  LockerRental? currentRental;
-@override final  DateTime createdAt;
-@override final  DateTime updatedAt;
+@override final  DateTime? createdAt;
+@override final  DateTime? updatedAt;
 
 /// Create a copy of GetModuleByIdLocker
 /// with the given fields replaced by the non-null parameter values.
@@ -140,7 +140,7 @@ abstract mixin class _$GetModuleByIdLockerCopyWith<$Res> implements $GetModuleBy
   factory _$GetModuleByIdLockerCopyWith(_GetModuleByIdLocker value, $Res Function(_GetModuleByIdLocker) _then) = __$GetModuleByIdLockerCopyWithImpl;
 @override @useResult
 $Res call({
- String id, String lockerId, bool isAvailable, LockerRental? currentRental, DateTime createdAt, DateTime updatedAt
+ String id, String lockerId, bool isAvailable, LockerRental? currentRental, DateTime? createdAt, DateTime? updatedAt
 });
 
 
@@ -157,15 +157,15 @@ class __$GetModuleByIdLockerCopyWithImpl<$Res>
 
 /// Create a copy of GetModuleByIdLocker
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? lockerId = null,Object? isAvailable = null,Object? currentRental = freezed,Object? createdAt = null,Object? updatedAt = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? lockerId = null,Object? isAvailable = null,Object? currentRental = freezed,Object? createdAt = freezed,Object? updatedAt = freezed,}) {
   return _then(_GetModuleByIdLocker(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as String,lockerId: null == lockerId ? _self.lockerId : lockerId // ignore: cast_nullable_to_non_nullable
 as String,isAvailable: null == isAvailable ? _self.isAvailable : isAvailable // ignore: cast_nullable_to_non_nullable
 as bool,currentRental: freezed == currentRental ? _self.currentRental : currentRental // ignore: cast_nullable_to_non_nullable
-as LockerRental?,createdAt: null == createdAt ? _self.createdAt : createdAt // ignore: cast_nullable_to_non_nullable
-as DateTime,updatedAt: null == updatedAt ? _self.updatedAt : updatedAt // ignore: cast_nullable_to_non_nullable
-as DateTime,
+as LockerRental?,createdAt: freezed == createdAt ? _self.createdAt : createdAt // ignore: cast_nullable_to_non_nullable
+as DateTime?,updatedAt: freezed == updatedAt ? _self.updatedAt : updatedAt // ignore: cast_nullable_to_non_nullable
+as DateTime?,
   ));
 }
 
