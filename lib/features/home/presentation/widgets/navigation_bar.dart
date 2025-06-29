@@ -67,10 +67,10 @@ class _MenuBottomSheet extends StatelessWidget {
             ),
             _MenuTile(
               icon: Icons.receipt_long,
-              title: 'Rentals',
+              title: 'My Rentals',
               onTap: () {
                 Navigator.pop(context);
-                // TODO: Navigate to rentals
+                context.push('/rentals');
               },
             ),
             _MenuTile(
