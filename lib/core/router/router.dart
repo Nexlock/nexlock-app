@@ -2,6 +2,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:nexlock_app/features/auth/domain/providers/auth_notifier.dart';
 import 'package:nexlock_app/features/auth/presentation/screens/auth_screen.dart';
+import 'package:nexlock_app/features/auth/presentation/screens/profile_screen.dart';
 import 'package:nexlock_app/features/home/presentation/screens/home_screen.dart';
 import 'package:nexlock_app/features/splash/presentation/screens/splash_screen.dart';
 
@@ -37,6 +38,7 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(path: '/', builder: (context, state) => const SplashScreen()),
       GoRoute(path: '/home', builder: (context, state) => const HomeScreen()),
       GoRoute(path: '/auth', builder: (context, state) => const AuthScreen()),
+      GoRoute(path: '/profile', builder: (context, state) => ProfileScreen()),
     ],
   );
 });
