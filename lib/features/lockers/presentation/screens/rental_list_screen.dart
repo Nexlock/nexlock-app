@@ -40,7 +40,15 @@ class _RentalListScreenState extends ConsumerState<RentalListScreen> {
         actions: [
           IconButton(
             icon: const Icon(Icons.refresh),
-            onPressed: () => ref.read(lockerProvider.notifier).refreshRentals(),
+            onPressed: () {
+              ref.read(lockerProvider.notifier).refreshRentals();
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(
+                  content: Text('Refreshing rentals...'),
+                  duration: Duration(seconds: 1),
+                ),
+              );
+            },
           ),
         ],
       ),
@@ -64,9 +72,10 @@ class _RentalListScreenState extends ConsumerState<RentalListScreen> {
   }
 
   Widget _buildBody(List<RentalModel> rentals, bool isLoading) {
-    if (isLoading) {
-      return _buildLoadingState();
-    }
+    // Filter only active rentals (not expired)
+    final activeRentals = rentals
+        .where((rental) => rental.expiresAt.isAfter(DateTime.now()))
+        .toList();
 
     return RefreshIndicator(
       onRefresh: () async {
@@ -78,17 +87,30 @@ class _RentalListScreenState extends ConsumerState<RentalListScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            _buildHeader(rentals.length),
+            _buildHeader(activeRentals.length),
             const SizedBox(height: 16),
-            if (rentals.isEmpty)
+            if (isLoading && activeRentals.isEmpty)
+              _buildLoadingState()
+            else if (activeRentals.isEmpty)
               _buildEmptyState()
-            else
-              ...rentals.map(
+            else ...[
+              ...activeRentals.map(
                 (rental) => RentalCard(
                   rental: rental,
                   onTap: () => _handleRentalTap(rental),
                 ),
               ),
+              // Show loading indicator at bottom if refreshing with existing data
+              if (isLoading)
+                Container(
+                  padding: const EdgeInsets.all(16),
+                  child: const Center(
+                    child: CircularProgressIndicator(
+                      valueColor: AlwaysStoppedAnimation<Color>(Colors.white54),
+                    ),
+                  ),
+                ),
+            ],
           ],
         ),
       ),
@@ -303,10 +325,9 @@ class _RentalDetailsBottomSheet extends StatelessWidget {
                     vertical: 4,
                   ),
                   decoration: BoxDecoration(
-                    color:
-                        rental.isLocked
-                            ? Colors.red.withOpacity(0.2)
-                            : Colors.green.withOpacity(0.2),
+                    color: rental.isLocked
+                        ? Colors.red.withOpacity(0.2)
+                        : Colors.green.withOpacity(0.2),
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: Text(

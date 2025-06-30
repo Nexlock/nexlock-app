@@ -22,26 +22,72 @@ class LockerScreen extends ConsumerStatefulWidget {
 
 class _LockerScreenState extends ConsumerState<LockerScreen> {
   bool isLoading = false;
+  String? loadingAction; // Track which action is loading
+  late GetModuleByIdLocker currentLocker;
 
   @override
   void initState() {
     super.initState();
+    currentLocker = widget.locker;
+    // Refresh rental status when screen loads
+    _refreshLockerStatus();
+  }
+
+  Future<void> _refreshLockerStatus() async {
+    if (currentLocker.currentRental != null) {
+      try {
+        await ref
+            .read(lockerProvider.notifier)
+            .getRentalStatus(currentLocker.currentRental!.id);
+      } catch (e) {
+        // Handle error silently for background refresh
+      }
+    }
   }
 
   @override
   Widget build(BuildContext context) {
+    // Watch for rental state changes to update the UI
+    final rentalState = ref.watch(lockerProvider);
+
+    // Update current locker data from rental state if available
+    rentalState.whenData((state) {
+      if (currentLocker.currentRental != null) {
+        final updatedRental = state.rentals
+            .where((r) => r.id == currentLocker.currentRental!.id)
+            .firstOrNull;
+        if (updatedRental != null) {
+          setState(() {
+            currentLocker = currentLocker.copyWith(
+              currentRental: currentLocker.currentRental?.copyWith(
+                isLocked: updatedRental.isLocked,
+                expiresAt: updatedRental.expiresAt,
+              ),
+            );
+          });
+        }
+      }
+    });
+
     final isAvailable =
-        widget.locker.isAvailable && widget.locker.currentRental == null;
-    final isOwnRental = widget.locker.currentRental?.isOwnRental ?? false;
+        currentLocker.isAvailable && currentLocker.currentRental == null;
+    final isOwnRental = currentLocker.currentRental?.isOwnRental ?? false;
 
     return Scaffold(
       extendBodyBehindAppBar: true,
       appBar: GlassmorphicAppBar(
-        title: 'Locker ${widget.locker.lockerId}',
+        title: 'Locker ${currentLocker.lockerId}',
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
           onPressed: () => context.pop(),
         ),
+        actions: [
+          if (currentLocker.currentRental != null)
+            IconButton(
+              icon: const Icon(Icons.refresh),
+              onPressed: _refreshLockerStatus,
+            ),
+        ],
       ),
       body: Container(
         decoration: const BoxDecoration(gradient: AppColors.backgroundGradient),
@@ -49,17 +95,21 @@ class _LockerScreenState extends ConsumerState<LockerScreen> {
           child: Column(
             children: [
               Expanded(
-                child: SingleChildScrollView(
-                  padding: const EdgeInsets.all(16),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      _LockerInfoCard(locker: widget.locker),
-                      const SizedBox(height: 20),
-                      if (isAvailable) _RentSection(),
-                      if (isOwnRental) _RentalActionsSection(),
-                      if (!isAvailable && !isOwnRental) _OccupiedSection(),
-                    ],
+                child: RefreshIndicator(
+                  onRefresh: _refreshLockerStatus,
+                  child: SingleChildScrollView(
+                    physics: const AlwaysScrollableScrollPhysics(),
+                    padding: const EdgeInsets.all(16),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        _LockerInfoCard(locker: currentLocker),
+                        const SizedBox(height: 20),
+                        if (isAvailable) _RentSection(),
+                        if (isOwnRental) _RentalActionsSection(),
+                        if (!isAvailable && !isOwnRental) _OccupiedSection(),
+                      ],
+                    ),
                   ),
                 ),
               ),
@@ -120,6 +170,48 @@ class _LockerScreenState extends ConsumerState<LockerScreen> {
                   ],
                 ),
               ),
+              // Show real-time lock status
+              if (locker.currentRental != null)
+                Container(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  decoration: BoxDecoration(
+                    color: locker.currentRental!.isLocked
+                        ? Colors.red.withOpacity(0.2)
+                        : Colors.green.withOpacity(0.2),
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(
+                      color: locker.currentRental!.isLocked
+                          ? Colors.red.withOpacity(0.4)
+                          : Colors.green.withOpacity(0.4),
+                    ),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(
+                        locker.currentRental!.isLocked
+                            ? Icons.lock
+                            : Icons.lock_open,
+                        size: 12,
+                        color: locker.currentRental!.isLocked
+                            ? Colors.red
+                            : Colors.green,
+                      ),
+                      const SizedBox(width: 4),
+                      Text(
+                        locker.currentRental!.isLocked ? 'LOCKED' : 'UNLOCKED',
+                        style: TextStyle(
+                          fontSize: 10,
+                          fontWeight: FontWeight.w600,
+                          color: locker.currentRental!.isLocked
+                              ? Colors.red
+                              : Colors.green,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
             ],
           ),
           if (locker.currentRental != null) ...[
@@ -159,8 +251,14 @@ class _LockerScreenState extends ConsumerState<LockerScreen> {
         ),
         const SizedBox(height: 8),
         _DetailRow(
+          icon: Icons.timer,
+          label: 'Time Remaining',
+          value: _getTimeRemaining(rental.expiresAt),
+        ),
+        const SizedBox(height: 8),
+        _DetailRow(
           icon: rental.isLocked ? Icons.lock : Icons.lock_open,
-          label: 'Status',
+          label: 'Lock Status',
           value: rental.isLocked ? 'Locked' : 'Unlocked',
         ),
       ],
@@ -180,12 +278,14 @@ class _LockerScreenState extends ConsumerState<LockerScreen> {
           '$label: ',
           style: TextStyle(fontSize: 14, color: Colors.white.withOpacity(0.7)),
         ),
-        Text(
-          value,
-          style: const TextStyle(
-            fontSize: 14,
-            fontWeight: FontWeight.w500,
-            color: Colors.white,
+        Expanded(
+          child: Text(
+            value,
+            style: const TextStyle(
+              fontSize: 14,
+              fontWeight: FontWeight.w500,
+              color: Colors.white,
+            ),
           ),
         ),
       ],
@@ -215,9 +315,12 @@ class _LockerScreenState extends ConsumerState<LockerScreen> {
           ),
           const SizedBox(height: 16),
           GlassmorphicButton(
-            onPressed: isLoading ? null : _rentLocker,
-            text: isLoading ? 'Renting...' : 'Rent This Locker',
-            isLoading: isLoading,
+            onPressed:
+                (isLoading && loadingAction == 'rent') ? null : _rentLocker,
+            text: (isLoading && loadingAction == 'rent')
+                ? 'Renting...'
+                : 'Rent This Locker',
+            isLoading: isLoading && loadingAction == 'rent',
           ),
         ],
       ),
@@ -225,6 +328,9 @@ class _LockerScreenState extends ConsumerState<LockerScreen> {
   }
 
   Widget _RentalActionsSection() {
+    final isToggleLoading =
+        isLoading && (loadingAction == 'lock' || loadingAction == 'unlock');
+
     return Column(
       children: [
         GlassmorphicContainer(
@@ -252,22 +358,22 @@ class _LockerScreenState extends ConsumerState<LockerScreen> {
                 children: [
                   Expanded(
                     child: GlassmorphicButton(
-                      onPressed: isLoading ? null : _toggleLock,
-                      text:
-                          widget.locker.currentRental!.isLocked
-                              ? 'Unlock'
-                              : 'Lock',
-                      icon:
-                          widget.locker.currentRental!.isLocked
-                              ? Icons.lock_open
-                              : Icons.lock,
-                      isLoading: isLoading,
+                      onPressed: isToggleLoading ? null : _toggleLock,
+                      text: currentLocker.currentRental!.isLocked
+                          ? 'Unlock'
+                          : 'Lock',
+                      icon: currentLocker.currentRental!.isLocked
+                          ? Icons.lock_open
+                          : Icons.lock,
+                      isLoading: isToggleLoading,
                     ),
                   ),
                   const SizedBox(width: 12),
                   Expanded(
                     child: GlassmorphicButton(
-                      onPressed: isLoading ? null : _showExtendDialog,
+                      onPressed: (isLoading && loadingAction == 'extend')
+                          ? null
+                          : _showExtendDialog,
                       text: 'Extend',
                       icon: Icons.access_time,
                       variant: GlassmorphicButtonVariant.secondary,
@@ -301,10 +407,13 @@ class _LockerScreenState extends ConsumerState<LockerScreen> {
               ),
               const SizedBox(height: 16),
               GlassmorphicButton(
-                onPressed: isLoading ? null : _showCheckoutDialog,
+                onPressed: (isLoading && loadingAction == 'checkout')
+                    ? null
+                    : _showCheckoutDialog,
                 text: 'Checkout',
                 icon: Icons.logout,
                 variant: GlassmorphicButtonVariant.danger,
+                isLoading: isLoading && loadingAction == 'checkout',
               ),
             ],
           ),
@@ -351,8 +460,8 @@ class _LockerScreenState extends ConsumerState<LockerScreen> {
 
   Color _getStatusColor() {
     final isAvailable =
-        widget.locker.isAvailable && widget.locker.currentRental == null;
-    final isOwnRental = widget.locker.currentRental?.isOwnRental ?? false;
+        currentLocker.isAvailable && currentLocker.currentRental == null;
+    final isOwnRental = currentLocker.currentRental?.isOwnRental ?? false;
 
     if (isOwnRental) return AppColors.accent;
     if (isAvailable) return Colors.green;
@@ -361,8 +470,8 @@ class _LockerScreenState extends ConsumerState<LockerScreen> {
 
   String _getStatusText() {
     final isAvailable =
-        widget.locker.isAvailable && widget.locker.currentRental == null;
-    final isOwnRental = widget.locker.currentRental?.isOwnRental ?? false;
+        currentLocker.isAvailable && currentLocker.currentRental == null;
+    final isOwnRental = currentLocker.currentRental?.isOwnRental ?? false;
 
     if (isOwnRental) return 'YOUR RENTAL';
     if (isAvailable) return 'AVAILABLE';
@@ -373,17 +482,41 @@ class _LockerScreenState extends ConsumerState<LockerScreen> {
     return '${dateTime.day}/${dateTime.month}/${dateTime.year} ${dateTime.hour.toString().padLeft(2, '0')}:${dateTime.minute.toString().padLeft(2, '0')}';
   }
 
+  String _getTimeRemaining(DateTime expiresAt) {
+    final now = DateTime.now();
+    final difference = expiresAt.difference(now);
+
+    if (difference.isNegative) {
+      return 'Expired';
+    }
+
+    final days = difference.inDays;
+    final hours = difference.inHours % 24;
+    final minutes = difference.inMinutes % 60;
+
+    if (days > 0) {
+      return '${days}d ${hours}h ${minutes}m';
+    } else if (hours > 0) {
+      return '${hours}h ${minutes}m';
+    } else {
+      return '${minutes}m';
+    }
+  }
+
   Future<void> _rentLocker() async {
-    setState(() => isLoading = true);
+    setState(() {
+      isLoading = true;
+      loadingAction = 'rent';
+    });
 
     try {
-      await ref.read(lockerProvider.notifier).createRental(widget.locker.id);
+      await ref.read(lockerProvider.notifier).createRental(currentLocker.id);
 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(
-              'Locker ${widget.locker.lockerId} rented successfully!',
+              'Locker ${currentLocker.lockerId} rented successfully!',
             ),
             backgroundColor: Colors.green,
           ),
@@ -401,23 +534,37 @@ class _LockerScreenState extends ConsumerState<LockerScreen> {
       }
     } finally {
       if (mounted) {
-        setState(() => isLoading = false);
+        setState(() {
+          isLoading = false;
+          loadingAction = null;
+        });
       }
     }
   }
 
   Future<void> _toggleLock() async {
-    setState(() => isLoading = true);
+    final action = currentLocker.currentRental!.isLocked
+        ? ActionType.unlock
+        : ActionType.lock;
+
+    setState(() {
+      isLoading = true;
+      loadingAction = action == ActionType.lock ? 'lock' : 'unlock';
+    });
 
     try {
-      final action =
-          widget.locker.currentRental!.isLocked
-              ? ActionType.unlock
-              : ActionType.lock;
+      // Show immediate optimistic update
+      setState(() {
+        currentLocker = currentLocker.copyWith(
+          currentRental: currentLocker.currentRental?.copyWith(
+            isLocked: action == ActionType.lock,
+          ),
+        );
+      });
 
       await ref
           .read(lockerProvider.notifier)
-          .toggleLock(widget.locker.currentRental!.id, action);
+          .toggleLock(currentLocker.currentRental!.id, action);
 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -428,10 +575,18 @@ class _LockerScreenState extends ConsumerState<LockerScreen> {
             backgroundColor: Colors.green,
           ),
         );
-        // Removed context.pop() to stay on the locker screen
       }
     } catch (e) {
+      // Revert optimistic update on error
       if (mounted) {
+        setState(() {
+          currentLocker = currentLocker.copyWith(
+            currentRental: currentLocker.currentRental?.copyWith(
+              isLocked: action != ActionType.lock,
+            ),
+          );
+        });
+
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('Failed to toggle lock: $e'),
@@ -441,7 +596,10 @@ class _LockerScreenState extends ConsumerState<LockerScreen> {
       }
     } finally {
       if (mounted) {
-        setState(() => isLoading = false);
+        setState(() {
+          isLoading = false;
+          loadingAction = null;
+        });
       }
     }
   }
@@ -449,39 +607,37 @@ class _LockerScreenState extends ConsumerState<LockerScreen> {
   void _showExtendDialog() {
     showDialog(
       context: context,
-      builder:
-          (context) => ExtendDialog(
-            rentalId: widget.locker.currentRental!.id,
-            onExtended: () {
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(
-                  content: Text('Rental extended successfully!'),
-                  backgroundColor: Colors.green,
-                ),
-              );
-              context.pop();
-            },
-          ),
+      builder: (context) => ExtendDialog(
+        rentalId: currentLocker.currentRental!.id,
+        onExtended: () {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Rental extended successfully!'),
+              backgroundColor: Colors.green,
+            ),
+          );
+          _refreshLockerStatus();
+        },
+      ),
     );
   }
 
   void _showCheckoutDialog() {
     showDialog(
       context: context,
-      builder:
-          (context) => CheckoutDialog(
-            rentalId: widget.locker.currentRental!.id,
-            lockerName: 'Locker ${widget.locker.lockerId}',
-            onCheckedOut: () {
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(
-                  content: Text('Rental ended successfully!'),
-                  backgroundColor: Colors.green,
-                ),
-              );
-              context.pop();
-            },
-          ),
+      builder: (context) => CheckoutDialog(
+        rentalId: currentLocker.currentRental!.id,
+        lockerName: 'Locker ${currentLocker.lockerId}',
+        onCheckedOut: () {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Rental ended successfully!'),
+              backgroundColor: Colors.green,
+            ),
+          );
+          context.pop();
+        },
+      ),
     );
   }
 }

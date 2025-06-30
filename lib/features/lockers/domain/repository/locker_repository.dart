@@ -120,4 +120,25 @@ class LockerRepository {
       }
     }
   }
+
+  Future<RentalModel> getRentalStatus(String rentalId) async {
+    try {
+      final response =
+          await _dio.instance.get('/api/v1/rentals/$rentalId/status');
+
+      if (response.statusCode != 200) {
+        throw Exception(
+            'Failed to get rental status: ${response.statusMessage}');
+      }
+
+      return RentalModel.fromJson(response.data);
+    } catch (e) {
+      if (e is DioException) {
+        final errorMessage = parseDioError(e);
+        throw Exception(errorMessage);
+      } else {
+        throw Exception('An unexpected error occurred: $e');
+      }
+    }
+  }
 }
